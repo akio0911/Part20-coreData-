@@ -11,12 +11,12 @@ import CoreData
 final class InputViewController: UIViewController {
 
     enum Mode {
-        case input
+        case create
         case edit(Fruit)
     }
 
     enum Output {
-        case input(Fruit)
+        case create(Fruit)
         case edit(Fruit, String)
     }
 
@@ -33,7 +33,7 @@ final class InputViewController: UIViewController {
 
         textField.text = {
             switch mode {
-            case .input:
+            case .create:
                 return ""
             case let .edit(fruit):
                 return fruit.name
@@ -45,7 +45,7 @@ final class InputViewController: UIViewController {
         guard let mode = mode else { return }
 
         switch mode {
-        case .input:
+        case .create:
             guard let context = FruitsRepository.managedObjectContext,
                   let newFruit = NSEntityDescription.insertNewObject(forEntityName: FruitsRepository.key, into: context) as? Fruit else {
                 print("エラー")
@@ -53,7 +53,7 @@ final class InputViewController: UIViewController {
             }
             newFruit.name = textField.text ?? ""
             newFruit.isChecked = false
-            output = .input(newFruit)
+            output = .create(newFruit)
         case let .edit(fruit):
             output = .edit(fruit, textField.text ?? "")
         }
@@ -63,7 +63,7 @@ final class InputViewController: UIViewController {
                 switch mode {
                 case .edit:
                     return "edit"
-                case .input:
+                case .create:
                     return "save"
                 }
             }(),

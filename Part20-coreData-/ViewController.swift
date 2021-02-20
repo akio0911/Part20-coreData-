@@ -35,7 +35,7 @@ final class ViewController: UIViewController {
         }
 
         switch output {
-        case let .input(newFruit):
+        case let .create(newFruit):
             useCase.append(fruit: newFruit)
             tableView.reloadData()
         case .edit:
@@ -51,12 +51,11 @@ final class ViewController: UIViewController {
         }
 
         switch output {
-        case .input:
+        case .create:
             fatalError("Invalid output")
         case let .edit(fruit, newName):
             useCase.replace(fruit: fruit, newName: newName)
-    //        tableView.reloadRows(at: [editIndexPath], with: .automatic)
-            tableView.reloadData()
+            tableView.reloadRows(at: [editIndexPath], with: .automatic)
         }
     }
 
@@ -64,7 +63,7 @@ final class ViewController: UIViewController {
         if let nextVC = (segue.destination as? UINavigationController)?.topViewController as? InputViewController {
             switch segue.identifier ?? "" {
             case "input":
-                nextVC.mode = .input
+                nextVC.mode = .create
             case "edit":
                 guard let editIndexPath = editIndexPath else { return }
                 nextVC.mode = .edit(useCase.fruits[editIndexPath.row])
