@@ -15,11 +15,15 @@ final class InputViewController: UIViewController {
         case edit(Fruit)
     }
 
+    enum Output {
+        case input(Fruit)
+        case edit(Fruit, String)
+    }
+
     @IBOutlet private weak var textField: UITextField!
 
     var mode: Mode?
-    private(set) var output: Fruit?
-    private(set) var editName: String?
+    private(set) var output: Output?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,9 +53,9 @@ final class InputViewController: UIViewController {
             }
             newFruit.name = textField.text ?? ""
             newFruit.isChecked = false
-            output = newFruit
-        case .edit:
-            editName = textField.text ?? ""
+            output = .input(newFruit)
+        case let .edit(fruit):
+            output = .edit(fruit, textField.text ?? "")
         }
 
         performSegue(

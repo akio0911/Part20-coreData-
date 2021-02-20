@@ -30,22 +30,34 @@ final class ViewController: UIViewController {
 
     @IBAction func save(segue: UIStoryboardSegue) {
         guard let inputVC = segue.source as? InputViewController,
-              let newFruit = inputVC.output else {
+              let output = inputVC.output else {
             return
         }
-        useCase.append(fruit: newFruit)
-        tableView.reloadData()
+
+        switch output {
+        case let .input(newFruit):
+            useCase.append(fruit: newFruit)
+            tableView.reloadData()
+        case .edit:
+            fatalError("Invalid output")
+        }
     }
 
     @IBAction func edit(segue: UIStoryboardSegue) {
         guard let inputVC = segue.source as? InputViewController,
-              let fruit = inputVC.editName,
+              let output = inputVC.output,
               let editIndexPath = editIndexPath else {
             return
         }
-        useCase.replace(index: editIndexPath.row, fruit: fruit)
-//        tableView.reloadRows(at: [editIndexPath], with: .automatic)
-        tableView.reloadData()
+
+        switch output {
+        case .input:
+            fatalError("Invalid output")
+        case let .edit(fruit, newName):
+            useCase.replace(fruit: fruit, newName: newName)
+    //        tableView.reloadRows(at: [editIndexPath], with: .automatic)
+            tableView.reloadData()
+        }
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -109,8 +121,8 @@ class FruitsUseCase {
         repository.save()
     }
 
-    func replace(index: Int, fruit: String) {
-        repository.update(index: index, fruit: fruit)
+    func replace(fruit: Fruit, newName: String) {
+        repository.update(fruit: fruit, newName: newName)
     }
 
     func toggleCheck(index: Int) {
@@ -134,19 +146,9 @@ class FruitsRepository {
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
-    func update(index: Int, fruit: String) {
-        guard let context = FruitsRepository.managedObjectContext else { return }
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: FruitsRepository.key)
-        do {
-            let fetchResults = try context.fetch(fetchRequest)
-            guard let results = fetchResults as? [NSManagedObject] else { return }
-            if !results.isEmpty {
-                results[index].setValue(fruit, forKey: "name")
-            }
-            save()
-        } catch {
-            print("エラー")
-        }
+    func update(fruit: Fruit, newName: String) {
+        fruit.name = newName
+        save()
     }
 
     func delete(fruit: Fruit) {
